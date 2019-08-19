@@ -48,7 +48,7 @@ public class Motor {
      * @param speed
      * @param direction
      */
-    public void controlMotorWithSteep(final int nbSteep, final int speed, final int direction) {
+    public void controlMotorWithSteep(final int speed, final int direction, final int nbSteep) {
         rotorSteep = 0;
         controlMotor(speed, direction);
 
