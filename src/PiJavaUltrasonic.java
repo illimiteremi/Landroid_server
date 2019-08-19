@@ -22,7 +22,7 @@ public class PiJavaUltrasonic{
     private GpioPinDigitalOutput     pin_trig;
     private GpioPinDigitalInput      pin_echo;
 
-    public PiJavaUltrasonic(int ECHO, int TRIG, long REJ_START,long REJ_TIME){
+    public PiJavaUltrasonic(int ECHO, int TRIG, long REJ_START, long REJ_TIME) {
         //GPIO
         this.PIN_ECHO = ECHO;
         this.PIN_TRIG = TRIG;

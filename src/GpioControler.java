@@ -45,9 +45,14 @@ public class GpioControler {
                 console.println("PWM rate is: " + leftMotor.getSpeed());
                 Thread.sleep(50);
             }
+
             leftMotor.stopMotor();
-            console.println("Test with 100 Steep");
+            console.println("Test with 100 Steep forward");
+            leftMotor.controlMotorWithSteep(100,20,1);
+            Thread.sleep(2000);
+            console.println("Test with 100 Steep backward");
             leftMotor.controlMotorWithSteep(100,20,0);
+
             console.println(" ... Finish !");
         } catch (Exception ex) {
             console.println(ex);
