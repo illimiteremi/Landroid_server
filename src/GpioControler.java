@@ -69,10 +69,10 @@ public class GpioControler {
                     23529411 //REJECTION_TIME ; long (nano seconds)
             );
             int distance = sonic.getDistance();
-            System.out.println("distance " + sonic.getDistance() + "mm");
+            console.println("distance " + sonic.getDistance() + "mm");
             return distance;
         } catch (Exception e) {
-            System.out.println("Error : " + e);
+            console.println("Error : " + e);
         }
         return 0;
     }
