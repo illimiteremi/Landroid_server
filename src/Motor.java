@@ -36,7 +36,6 @@ public class Motor {
                 gpioSteeper = gpio.provisionDigitalInputPin(pinSteeper, PinPullResistance.PULL_UP);
                 gpioSteeper.setShutdownOptions(true);
             }
-
           } catch (Exception ex) {
             console.println("Motor Error : " + ex);
         }
