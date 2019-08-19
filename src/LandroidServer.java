@@ -31,9 +31,7 @@ public class LandroidServer {
 
     // Start Server
     public void open() {
-
         Thread t = new Thread(() -> {
-
             while (isRunning) {
                 try {
                     // waiting client connexion...
