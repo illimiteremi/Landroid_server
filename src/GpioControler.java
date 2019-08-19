@@ -60,20 +60,20 @@ public class GpioControler {
      * @param echoPin
      * @param trigPin
      */
-    public void testUltrasonic(int echoPin, int trigPin) {
-
-        PiJavaUltrasonic sonic = new PiJavaUltrasonic(
-                echoPin,//ECO PIN (physical 11)
-                trigPin,//TRIG PIN (pysical 22)
-                1000,//REJECTION_START ; long (nano seconds)
-                23529411 //REJECTION_TIME ; long (nano seconds)
-        );
-        System.out.println("Start");
+    public int getDistance(Pin echoPin, Pin trigPin) {
         try {
+            PiJavaUltrasonic sonic = new PiJavaUltrasonic(
+                    echoPin.getAddress(),//ECO PIN (physical 11)
+                    trigPin.getAddress(),//TRIG PIN (pysical 22)
+                    1000,//REJECTION_START ; long (nano seconds)
+                    23529411 //REJECTION_TIME ; long (nano seconds)
+            );
+            int distance = sonic.getDistance();
             System.out.println("distance " + sonic.getDistance() + "mm");
-            Thread.sleep(1000); //1s
+            return distance;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Error : " + e);
         }
+        return 0;
     }
 }
