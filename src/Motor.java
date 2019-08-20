@@ -98,7 +98,7 @@ public class Motor {
         if (direction == 1) {
             gpioDirection.high();
         } else {
-            gpioDirection.high();
+            gpioDirection.low();
         }
     }
 
