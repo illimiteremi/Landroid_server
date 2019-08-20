@@ -5,7 +5,7 @@ import com.pi4j.util.Console;
 public class UserInterface {
 
     private GpioController gpio;
-    private GpioPinDigitalOutput gpioStartAndStop;
+    private GpioPinDigitalInput gpioStartAndStop;
     private Boolean isStarted;
 
     private Console console;
@@ -22,11 +22,11 @@ public class UserInterface {
         try {
             gpio = GpioFactory.getInstance();
             // Button Start / Stop
-            gpioStartAndStop = gpio.provisionDigitalInputPin(pinSteeper, PinPullResistance.PULL_UP);
+            gpioStartAndStop = gpio.provisionDigitalInputPin(startAndStop, PinPullResistance.PULL_UP);
             gpioStartAndStop.setShutdownOptions(true);
 
             // Check Value;
-            isStarted = gpioStartAndStop.getState.getState == 1 ? true : false;
+            isStarted = gpioStartAndStop.getState().getValue() == 1 ? true : false;
 
             // Start Listener
             controlStartAndStop();
