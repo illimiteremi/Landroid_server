@@ -1,3 +1,12 @@
+import java.io.File;
+import java.io.IOException;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import com.pi4j.io.gpio.*;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import com.pi4j.util.Console;
@@ -8,12 +17,16 @@ public class UserInterface {
     private GpioPinDigitalInput gpioStartAndStop;
     private Boolean isStarted;
 
+    private static String wavStart = "/wav/start.wav";
+    private static String wavStop = "/wav/stop.wav";
+    private static String wavHalt = "/wav/goodbye.wav";
+
     private Console console;
 
     /**
      * UserInterface Controler
      */
-    public UserInterface(Pin startAndStop) {
+    public UserInterface(Pin pinStartAndStop) {
         console = new Console();
 
         console.title("<-- Landroid Project -->", "Init User Interface");
@@ -21,16 +34,18 @@ public class UserInterface {
         // Create gpio controller for motor
         try {
             gpio = GpioFactory.getInstance();
-            // Button Start / Stop
-            gpioStartAndStop = gpio.provisionDigitalInputPin(startAndStop, PinPullResistance.PULL_UP);
-            gpioStartAndStop.setShutdownOptions(true);
 
-            // Check Value;
-            isStarted = gpioStartAndStop.getState().getValue() == 1 ? true : false;
+            if (pinStartAndStop != null) {
+                // Button Start / Stop
+                gpioStartAndStop = gpio.provisionDigitalInputPin(pinStartAndStop, PinPullResistance.PULL_UP);
+                gpioStartAndStop.setShutdownOptions(true);
 
-            // Start Listener
-            controlStartAndStop();
+                // Check Value;
+                isStarted = gpioStartAndStop.getState().getValue() == 1 ? true : false;
 
+                // Start Listener
+                controlStartAndStop();
+            }
         } catch (Exception ex) {
             console.println("Motor Error : " + ex);
         }
@@ -53,6 +68,25 @@ public class UserInterface {
                 }
             }
         });
+    }
+
+    /**
+     * speak
+     * 
+     * @param wavFile
+     */
+    public void speak(String wavFile) {
+        AudioInputStream audioIn;
+        try {
+            audioIn = AudioSystem.getAudioInputStream(new File(wavFile));
+            Clip clip;
+            clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+            Thread.sleep(clip.getMicrosecondLength() / 1000);
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | InterruptedException e) {
+            console.println("Speak Error : " + e);
+        }
     }
 
     public void startLandroid() {

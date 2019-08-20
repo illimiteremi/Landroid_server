@@ -10,6 +10,7 @@ public class Motor {
     private GpioPinDigitalInput gpioSteeper;
 
     private int rotorSteep;
+    public boolean isSteeping = false;
 
     private String motorName;
 
@@ -50,16 +51,23 @@ public class Motor {
      * @param direction
      */
     public void controlMotorWithSteep(final int speed, final int direction, final int nbSteep) {
+
+        while (isSteeping) {
+            // Wait end of steeping
+            Thread.sleep(500);
+        }
         rotorSteep = 0;
+        isSteeping = true;
         controlMotor(speed, direction);
 
         gpioSteeper.addListener((GpioPinListenerDigital) event -> {
             if (event.getState().isHigh()) {
                 rotorSteep++;
             }
-            if (rotorSteep >= nbSteep) {
+            if (rotorSteep == nbSteep) {
                 console.println("Number of steep is done : " + rotorSteep + " motor Stop !");
                 stopMotor();
+                isSteeping = false;
             }
         });
     }
@@ -72,11 +80,7 @@ public class Motor {
      */
     public void controlMotor(int speed, int direction) {
         console.println("<--Pi4J--> Set Motor Speed / Direction");
-        if (direction == 1) {
-            gpioDirection.high();
-        } else {
-            gpioDirection.low();
-        }
+        setDirection(direction);
         gpioSpeed.setPwm(speed);
     }
 

@@ -4,6 +4,7 @@ import com.pi4j.util.Console;
 public class GpioControler {
 
     public final Motor leftMotor;
+    public final UserInterface userInterface;
 
     private final Console console;
 
@@ -16,6 +17,9 @@ public class GpioControler {
 
         // Set Left Motor
         leftMotor = new Motor("Left Motor", RaspiPin.GPIO_23, RaspiPin.GPIO_02, RaspiPin.GPIO_03);
+
+        // Set User Interface
+        userInterface = UserInterface(null);
     }
 
     /**
@@ -25,6 +29,35 @@ public class GpioControler {
      */
     public void testGpio() throws InterruptedException {
         testMotor();
+    }
+
+    /**
+     * testUltrasonic
+     * 
+     * @param echoPin
+     * @param trigPin
+     */
+    public int getDistance(Pin echoPin, Pin trigPin) {
+        try {
+            PiJavaUltrasonic sonic = new PiJavaUltrasonic(echoPin.getAddress(), // ECO PIN (physical 11)
+                    trigPin.getAddress(), // TRIG PIN (pysical 22)
+                    1000, // REJECTION_START ; long (nano seconds)
+                    23529411 // REJECTION_TIME ; long (nano seconds)
+            );
+            int distance = sonic.getDistance();
+            console.println("distance " + sonic.getDistance() + "mm");
+            return distance;
+        } catch (Exception e) {
+            console.println("Error : " + e);
+        }
+        return 0;
+    }
+
+    /**
+     * stopAll
+     */
+    public void stopAll() {
+        leftMotor.stopMotor();
     }
 
     /**
@@ -50,7 +83,7 @@ public class GpioControler {
             leftMotor.stopMotor();
             console.println("Test with 100 steep forward");
             leftMotor.controlMotorWithSteep(100, 20, 1);
-            Thread.sleep(2000);
+
             console.println("Test with 100 steep backward");
             leftMotor.controlMotorWithSteep(100, 20, 0);
 
@@ -59,27 +92,5 @@ public class GpioControler {
             console.println(ex);
         }
         leftMotor.stopMotor();
-    }
-
-    /**
-     * testUltrasonic
-     * 
-     * @param echoPin
-     * @param trigPin
-     */
-    public int getDistance(Pin echoPin, Pin trigPin) {
-        try {
-            PiJavaUltrasonic sonic = new PiJavaUltrasonic(echoPin.getAddress(), // ECO PIN (physical 11)
-                    trigPin.getAddress(), // TRIG PIN (pysical 22)
-                    1000, // REJECTION_START ; long (nano seconds)
-                    23529411 // REJECTION_TIME ; long (nano seconds)
-            );
-            int distance = sonic.getDistance();
-            console.println("distance " + sonic.getDistance() + "mm");
-            return distance;
-        } catch (Exception e) {
-            console.println("Error : " + e);
-        }
-        return 0;
     }
 }

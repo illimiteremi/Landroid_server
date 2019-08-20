@@ -73,8 +73,11 @@ public class ClientProcessor implements Runnable {
                     out.write(Constants.RESPONSE.SUCCESS.getCode());
                     break;
                 case HALT_SYSTEM:
-                    gpioControler.leftMotor.stopMotor();
+                    gpioControler.userInterface.stopLandroid();
                     Runtime.getRuntime().exec("sudo shutdown -h now");
+                    break;
+                case STOP_ALL:
+                    gpioControler.stopAll();
                     break;
                 default:
                     out.write(Constants.RESPONSE.SUCCESS.getCode());
