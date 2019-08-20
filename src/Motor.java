@@ -10,7 +10,6 @@ public class Motor {
     private GpioPinDigitalInput gpioSteeper;
 
     private int rotorSteep;
-    public boolean isSteeping = false;
 
     private String motorName;
 
@@ -22,7 +21,7 @@ public class Motor {
     public Motor(String motorName, Pin pinSpeed, Pin pinDirection, Pin pinSteeper) {
         console = new Console();
         this.motorName = motorName;
-        console.title("<-- Landroid Project -->", "Init Motor :" + this.motorName);
+        console.println("<-- Landroid Project -->", "Init Motor :" + this.motorName);
 
         // Create gpio controller for motor
         try {
@@ -39,7 +38,7 @@ public class Motor {
                 gpioSteeper.setShutdownOptions(true);
             }
         } catch (Exception ex) {
-            console.err.println("Motor Error : " + ex);
+            console.println("Motor Error : " + ex);
         }
     }
 
@@ -50,26 +49,33 @@ public class Motor {
      * @param speed
      * @param direction
      */
-    public void controlMotorWithSteep(final int speed, final int direction, final int nbSteep) {
+    public synchronized void controlMotorWithSteep (final int speed, final int direction, final int nbSteep) {
 
-        while (isSteeping) {
-            // Wait end of steeping
-            Thread.sleep(500);
-        }
+        console.println("Number of steep to do : " + nbSteep);
         rotorSteep = 0;
-        isSteeping = true;
-        controlMotor(speed, direction);
 
         gpioSteeper.addListener((GpioPinListenerDigital) event -> {
+            console.println("state = " + event.getState());
             if (event.getState().isHigh()) {
                 rotorSteep++;
+                console.println("steep = " + rotorSteep);
+                if (rotorSteep == nbSteep) {
+                    stopMotor();
+                }
             }
-            if (rotorSteep == nbSteep) {
-                console.println("Number of steep is done : " + rotorSteep + " motor Stop !");
-                stopMotor();
-                isSteeping = false;
-            }
+
         });
+
+        controlMotor(speed, direction);
+        while (rotorSteep <= nbSteep){
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        console.println("Stop at :" + rotorSteep + " steep(s)");
+
     }
 
     /**

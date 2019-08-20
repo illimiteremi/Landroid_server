@@ -12,7 +12,7 @@ public class LandroidServer {
 
     private ServerSocket server = null;
     private GpioControler gpioControler;
-
+    private ModeAlone modeAlone;
 
     public LandroidServer(String pHost, int pPort){
 
@@ -22,6 +22,7 @@ public class LandroidServer {
         try {
             server = new ServerSocket(port, 100, InetAddress.getByName(host));
             gpioControler = new GpioControler();
+            modeAlone = new ModeAlone(gpioControler);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -36,7 +37,7 @@ public class LandroidServer {
                 try {
                     // waiting client connexion...
                     Socket client = server.accept();
-                    Thread thread = new Thread(new ClientProcessor(client, gpioControler));
+                    Thread thread = new Thread(new ClientProcessor(client, gpioControler, modeAlone));
                     thread.start();
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -4,8 +4,9 @@ import com.pi4j.util.Console;
 public class ModeAlone {
 
     private final Console console;
-    private final GpioControler gpioControler;
-    private final Thread thread;
+    private GpioControler gpioControler;
+    private Thread thread;
+    private boolean isRunning = false;
 
     /*
      * private final Pin leftEchoPin = RaspiPin.GPIO_02; private final Pin
@@ -21,12 +22,14 @@ public class ModeAlone {
     class AloneModeThread implements Runnable {
         @Override
         public void run() {
-            while (true) {
-                console.println("is running...");
-                gpioControler.leftMotor.controlMotor(20, 1);
-                Thread.sleep(1000);
-                gpioControler.leftMotor.controlMotor(20, 0);
-                Thread.sleep(1000);
+            while(isRunning) {
+                try {
+                    gpioControler.leftMotor.controlMotor(50, 1);
+                    Thread.sleep(500);
+                } catch (Exception e) {
+                    Thread.currentThread().interrupt();
+                    console.println("AloneModeThread Error : " + e);
+                }
             }
         }
     }
@@ -34,9 +37,9 @@ public class ModeAlone {
     /**
      * UserInterface Controler
      */
-    public ModeAlone(GpioControler gpioControler) {
+    public ModeAlone(final GpioControler gpioControler) {
         console = new Console();
-        console.title("<-- Landroid Project -->", "Init Mode Alone");
+        console.println("<-- Landroid Project -->", "Init Mode Alone");
 
         // Create gpio controller for motor
         try {
@@ -45,27 +48,27 @@ public class ModeAlone {
             // leftTrigPin.getAddress());
             // rightCapteur = new PiJavaUltrasonic(rightEchoPin.getAddress(),
             // rightTrigPin.getAddress());
-
-            // init AloneModeThread
-            thread = new Thread(new AloneModeThread());
         } catch (Exception ex) {
-            console.err.println("Motor Error : " + ex);
+            console.println("ModeAlone Error : " + ex);
         }
     }
 
     public void startModeAlone() {
         console.println("startModeAlone...");
-        if (!thread.isAlive()) {
-            thread.start();
-        }
+        isRunning = true;
+        thread = new Thread(new AloneModeThread());
+        thread.start();
     }
 
     public void stopModeAlone() {
         console.println("stopModeAlone...");
-        if (thread.isAlive()) {
-            thread.interrupt();
+        try {
+            isRunning = false;
+            gpioControler.stopAll();
+            thread.join();
+        } catch (InterruptedException e) {
+            console.println("stopModeAlone Error : " + e);
         }
-        gpioControler.stopAll();
     }
 
 }

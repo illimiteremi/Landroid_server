@@ -28,7 +28,7 @@ public class UserInterface {
      */
     public UserInterface(Pin pinStartAndStop) {
         console = new Console();
-        console.title("<-- Landroid Project -->", "Init User Interface");
+        console.println("<-- Landroid Project -->", "Init User Interface");
 
         // Create gpio controller for motor
         try {
@@ -47,7 +47,7 @@ public class UserInterface {
 
             }
         } catch (Exception ex) {
-            console.err.println("Motor Error : " + ex);
+            console.println("Motor Error : " + ex);
         }
     }
 
@@ -60,10 +60,10 @@ public class UserInterface {
                 console.println("Button Pressed !");
                 if (isStarted) {
                     isStarted = false;
-                    stopLandroid();
+                    //stopLandroid();
                 } else {
                     isStarted = true;
-                    startLandroid();
+                    //startLandroid();
                 }
             }
         });
@@ -84,7 +84,7 @@ public class UserInterface {
             clip.start();
             Thread.sleep(clip.getMicrosecondLength() / 1000);
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | InterruptedException e) {
-            console.err.println("Speak Error : " + e);
+            console.println("Speak Error : " + e);
         }
     }
 
