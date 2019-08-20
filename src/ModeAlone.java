@@ -1,7 +1,7 @@
 import com.pi4j.io.gpio.*;
 import com.pi4j.util.Console;
 
-public class ModeALone {
+public class ModeAlone {
 
     private final Console console;
     private final GpioControler gpioControler;
@@ -34,7 +34,7 @@ public class ModeALone {
     /**
      * UserInterface Controler
      */
-    public ModeALone(GpioControler gpioControler) {
+    public ModeAlone(GpioControler gpioControler) {
         console = new Console();
         console.title("<-- Landroid Project -->", "Init Mode Alone");
 
