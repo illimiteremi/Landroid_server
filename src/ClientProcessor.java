@@ -7,10 +7,12 @@ public class ClientProcessor implements Runnable {
     private Socket sock;
     private GpioControler gpioControler;
     private final Console console;
+    private final ModeAlone modeAlone;
 
     public ClientProcessor(Socket pSock, GpioControler gpioControler) {
         this.sock = pSock;
         this.gpioControler = gpioControler;
+        this.modeAlone = new ModeALone(gpioControler);
     }
 
     public void run() {
@@ -69,10 +71,10 @@ public class ClientProcessor implements Runnable {
                     gpioControler.leftMotor.stopMotor();
                     break;
                 case START_ALONE_MODE:
-                    // gpioControler.testUltrasonic(0,1);
+                    modeAlone.startModeAlone();
                     break;
                 case STOP_ALONE_MODE:
-                    out.write(Constants.RESPONSE.SUCCESS.getCode());
+                    modeAlone.stopModeAlone();
                     break;
                 case HALT_SYSTEM:
                     gpioControler.userInterface.stopLandroid();

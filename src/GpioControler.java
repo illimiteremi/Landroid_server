@@ -32,28 +32,6 @@ public class GpioControler {
     }
 
     /**
-     * testUltrasonic
-     * 
-     * @param echoPin
-     * @param trigPin
-     */
-    public int getDistance(Pin echoPin, Pin trigPin) {
-        try {
-            PiJavaUltrasonic sonic = new PiJavaUltrasonic(echoPin.getAddress(), // ECO PIN (physical 11)
-                    trigPin.getAddress(), // TRIG PIN (pysical 22)
-                    1000, // REJECTION_START ; long (nano seconds)
-                    23529411 // REJECTION_TIME ; long (nano seconds)
-            );
-            int distance = sonic.getDistance();
-            console.println("distance " + sonic.getDistance() + "mm");
-            return distance;
-        } catch (Exception e) {
-            console.err.println("Error : " + e);
-        }
-        return 0;
-    }
-
-    /**
      * stopAll
      */
     public void stopAll() {

@@ -28,7 +28,6 @@ public class UserInterface {
      */
     public UserInterface(Pin pinStartAndStop) {
         console = new Console();
-
         console.title("<-- Landroid Project -->", "Init User Interface");
 
         // Create gpio controller for motor
@@ -45,6 +44,7 @@ public class UserInterface {
 
                 // Start Listener
                 controlStartAndStop();
+
             }
         } catch (Exception ex) {
             console.err.println("Motor Error : " + ex);
@@ -55,7 +55,6 @@ public class UserInterface {
      * controlMotorWithSteep
      */
     private void controlStartAndStop() {
-
         gpioStartAndStop.addListener((GpioPinListenerDigital) event -> {
             if (event.getState().isHigh()) {
                 console.println("Button Pressed !");
@@ -87,16 +86,6 @@ public class UserInterface {
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | InterruptedException e) {
             console.err.println("Speak Error : " + e);
         }
-    }
-
-    public void startLandroid() {
-        console.println("Start Landroid Robot...");
-    }
-
-    public void stopLandroid() {
-        // stop all GPIO activity/threads by shutting down the GPIO controller
-        console.println("Stop all GPIO activity !");
-        gpio.shutdown();
     }
 
 }
