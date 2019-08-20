@@ -1,3 +1,5 @@
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import com.pi4j.util.Console;
@@ -10,13 +12,14 @@ public class ClientProcessor implements Runnable {
     private final ModeAlone modeAlone;
 
     public ClientProcessor(Socket pSock, GpioControler gpioControler) {
+        console = new Console();
         this.sock = pSock;
         this.gpioControler = gpioControler;
-        this.modeAlone = new ModeALone(gpioControler);
+        this.modeAlone = new ModeAlone(gpioControler);
     }
 
     public void run() {
-        console = new Console();
+
         while (!sock.isClosed()) {
 
             try {
@@ -77,7 +80,7 @@ public class ClientProcessor implements Runnable {
                     modeAlone.stopModeAlone();
                     break;
                 case HALT_SYSTEM:
-                    gpioControler.userInterface.stopLandroid();
+                    modeAlone.stopModeAlone();
                     Runtime.getRuntime().exec("sudo shutdown -h now");
                     break;
                 case STOP_ALL:
@@ -93,7 +96,7 @@ public class ClientProcessor implements Runnable {
                 sock.close();
 
             } catch (SocketException e) {
-                console.err.println("SocketException : " + e.getMessage());
+                console.println("SocketException : " + e.getMessage());
                 break;
             } catch (Exception e) {
                 break;
