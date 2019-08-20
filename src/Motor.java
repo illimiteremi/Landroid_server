@@ -4,10 +4,10 @@ import com.pi4j.util.Console;
 
 public class Motor {
 
-    private GpioController       gpio;
+    private GpioController gpio;
     private GpioPinDigitalOutput gpioDirection;
-    private GpioPinPwmOutput     gpioSpeed;
-    private GpioPinDigitalInput  gpioSteeper;
+    private GpioPinPwmOutput gpioSpeed;
+    private GpioPinDigitalInput gpioSteeper;
 
     private int rotorSteep;
 
@@ -16,7 +16,7 @@ public class Motor {
     private Console console;
 
     /**
-     * GpioControler
+     * Motor Controler
      */
     public Motor(String motorName, Pin pinSpeed, Pin pinDirection, Pin pinSteeper) {
         console = new Console();
@@ -27,7 +27,8 @@ public class Motor {
         try {
             gpio = GpioFactory.getInstance();
             // Direction
-            gpioDirection = gpio.provisionDigitalOutputPin(pinDirection, "direction_motor_" + this.motorName, PinState.LOW);
+            gpioDirection = gpio.provisionDigitalOutputPin(pinDirection, "direction_motor_" + this.motorName,
+                    PinState.LOW);
             // Speed
             gpioSpeed = gpio.provisionPwmOutputPin(pinSpeed, "speed_motor_" + motorName, 0);
             gpioSpeed.setPwmRange(100);
@@ -36,13 +37,14 @@ public class Motor {
                 gpioSteeper = gpio.provisionDigitalInputPin(pinSteeper, PinPullResistance.PULL_UP);
                 gpioSteeper.setShutdownOptions(true);
             }
-          } catch (Exception ex) {
+        } catch (Exception ex) {
             console.println("Motor Error : " + ex);
         }
     }
 
     /**
      * controlMotorWithSteep
+     * 
      * @param nbSteep
      * @param speed
      * @param direction
@@ -52,18 +54,19 @@ public class Motor {
         controlMotor(speed, direction);
 
         gpioSteeper.addListener((GpioPinListenerDigital) event -> {
-                if (event.getState().isHigh()) {
-                    rotorSteep++;
-                }
-                if (rotorSteep >= nbSteep) {
-                    console.println("Number of steep is done : " + rotorSteep + " motor Stop !");
-                    stopMotor();
-                }
-         });
+            if (event.getState().isHigh()) {
+                rotorSteep++;
+            }
+            if (rotorSteep >= nbSteep) {
+                console.println("Number of steep is done : " + rotorSteep + " motor Stop !");
+                stopMotor();
+            }
+        });
     }
 
     /**
      * controlMotor
+     * 
      * @param speed     : 1 to 100
      * @param direction : true / flase
      */
@@ -79,6 +82,7 @@ public class Motor {
 
     /**
      * setSpeed
+     * 
      * @param speed
      */
     public void setSpeed(int speed) {
@@ -87,6 +91,7 @@ public class Motor {
 
     /**
      * setDirection
+     * 
      * @param direction
      */
     public void setDirection(int direction) {
@@ -99,14 +104,16 @@ public class Motor {
 
     /**
      * getSpeed
+     * 
      * @return
      */
-    public int getSpeed(){
+    public int getSpeed() {
         return gpioSpeed.getPwm();
     }
 
     /**
      * getDirection
+     * 
      * @return
      */
     public int getDirection() {

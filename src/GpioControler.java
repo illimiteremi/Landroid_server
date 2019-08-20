@@ -20,6 +20,7 @@ public class GpioControler {
 
     /**
      * testGpio
+     * 
      * @throws InterruptedException
      */
     public void testGpio() throws InterruptedException {
@@ -32,7 +33,7 @@ public class GpioControler {
     private void testMotor() {
         try {
             console.title("<-- Landroid Project -->", "Test Motor PWM");
-            for(int i=0; i<100; i++){
+            for (int i = 0; i < 100; i++) {
                 leftMotor.setSpeed(i);
                 console.println("PWM rate is: " + leftMotor.getSpeed());
                 Thread.sleep(100);
@@ -40,18 +41,18 @@ public class GpioControler {
             console.println("PWM rate is: FULL SPEED !");
             Thread.sleep(10000);
 
-            for(int i=100; i>0; i--){
+            for (int i = 100; i > 0; i--) {
                 leftMotor.setSpeed(i);
                 console.println("PWM rate is: " + leftMotor.getSpeed());
                 Thread.sleep(50);
             }
 
             leftMotor.stopMotor();
-            console.println("Test with 100 Steep forward");
-            leftMotor.controlMotorWithSteep(100,20,1);
+            console.println("Test with 100 steep forward");
+            leftMotor.controlMotorWithSteep(100, 20, 1);
             Thread.sleep(2000);
-            console.println("Test with 100 Steep backward");
-            leftMotor.controlMotorWithSteep(100,20,0);
+            console.println("Test with 100 steep backward");
+            leftMotor.controlMotorWithSteep(100, 20, 0);
 
             console.println(" ... Finish !");
         } catch (Exception ex) {
@@ -62,16 +63,16 @@ public class GpioControler {
 
     /**
      * testUltrasonic
+     * 
      * @param echoPin
      * @param trigPin
      */
     public int getDistance(Pin echoPin, Pin trigPin) {
         try {
-            PiJavaUltrasonic sonic = new PiJavaUltrasonic(
-                    echoPin.getAddress(),//ECO PIN (physical 11)
-                    trigPin.getAddress(),//TRIG PIN (pysical 22)
-                    1000,//REJECTION_START ; long (nano seconds)
-                    23529411 //REJECTION_TIME ; long (nano seconds)
+            PiJavaUltrasonic sonic = new PiJavaUltrasonic(echoPin.getAddress(), // ECO PIN (physical 11)
+                    trigPin.getAddress(), // TRIG PIN (pysical 22)
+                    1000, // REJECTION_START ; long (nano seconds)
+                    23529411 // REJECTION_TIME ; long (nano seconds)
             );
             int distance = sonic.getDistance();
             console.println("distance " + sonic.getDistance() + "mm");
