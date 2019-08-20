@@ -39,7 +39,7 @@ public class Motor {
                 gpioSteeper.setShutdownOptions(true);
             }
         } catch (Exception ex) {
-            console.println("Motor Error : " + ex);
+            console.err.println("Motor Error : " + ex);
         }
     }
 

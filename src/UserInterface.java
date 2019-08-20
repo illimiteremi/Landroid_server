@@ -47,7 +47,7 @@ public class UserInterface {
                 controlStartAndStop();
             }
         } catch (Exception ex) {
-            console.println("Motor Error : " + ex);
+            console.err.println("Motor Error : " + ex);
         }
     }
 
@@ -85,7 +85,7 @@ public class UserInterface {
             clip.start();
             Thread.sleep(clip.getMicrosecondLength() / 1000);
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | InterruptedException e) {
-            console.println("Speak Error : " + e);
+            console.err.println("Speak Error : " + e);
         }
     }
 

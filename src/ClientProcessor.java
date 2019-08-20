@@ -1,11 +1,12 @@
-import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import com.pi4j.util.Console;
 
 public class ClientProcessor implements Runnable {
 
     private Socket sock;
     private GpioControler gpioControler;
+    private final Console console;
 
     public ClientProcessor(Socket pSock, GpioControler gpioControler) {
         this.sock = pSock;
@@ -13,6 +14,7 @@ public class ClientProcessor implements Runnable {
     }
 
     public void run() {
+        console = new Console();
         while (!sock.isClosed()) {
 
             try {
@@ -26,7 +28,7 @@ public class ClientProcessor implements Runnable {
                 // On affiche quelques infos, pour le débuggage
                 String debug = "Commande reçue : " + cmd + " - " + Constants.COMMANDE.getValue(cmd).getMessage()
                         + " - Vitesse = " + speed;
-                System.out.println(debug);
+                console.println(debug);
 
                 // On traite la demande du client en fonction de la commande envoyée
                 switch (Constants.COMMANDE.getValue(cmd)) {
@@ -89,7 +91,7 @@ public class ClientProcessor implements Runnable {
                 sock.close();
 
             } catch (SocketException e) {
-                System.err.println("SocketException : " + e.getMessage());
+                console.err.println("SocketException : " + e.getMessage());
                 break;
             } catch (Exception e) {
                 break;

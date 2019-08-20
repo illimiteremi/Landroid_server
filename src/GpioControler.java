@@ -48,7 +48,7 @@ public class GpioControler {
             console.println("distance " + sonic.getDistance() + "mm");
             return distance;
         } catch (Exception e) {
-            console.println("Error : " + e);
+            console.err.println("Error : " + e);
         }
         return 0;
     }
@@ -89,7 +89,7 @@ public class GpioControler {
 
             console.println(" ... Finish !");
         } catch (Exception ex) {
-            console.println(ex);
+            console.err.println(ex);
         }
         leftMotor.stopMotor();
     }
