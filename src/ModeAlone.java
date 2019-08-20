@@ -1,9 +1,6 @@
-import com.pi4j.io.gpio.*;
-import com.pi4j.util.Console;
 
 public class ModeAlone {
 
-    private final Console console;
     private GpioControler gpioControler;
     private Thread thread;
     private boolean isRunning = false;
@@ -24,11 +21,12 @@ public class ModeAlone {
         public void run() {
             while(isRunning) {
                 try {
+                    System.out.println("--> Mode Alone In Progress...");
                     gpioControler.leftMotor.controlMotor(50, 1);
                     Thread.sleep(500);
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();
-                    console.println("AloneModeThread Error : " + e);
+                    System.out.println("!! AloneModeThread Error : " + e);
                 }
             }
         }
@@ -38,8 +36,7 @@ public class ModeAlone {
      * UserInterface Controler
      */
     public ModeAlone(final GpioControler gpioControler) {
-        console = new Console();
-        console.println("<-- Landroid Project -->", "Init Mode Alone");
+        System.out.println("<-- Landroid Project --> Init Mode Alone");
 
         // Create gpio controller for motor
         try {
@@ -49,25 +46,25 @@ public class ModeAlone {
             // rightCapteur = new PiJavaUltrasonic(rightEchoPin.getAddress(),
             // rightTrigPin.getAddress());
         } catch (Exception ex) {
-            console.println("ModeAlone Error : " + ex);
+            System.out.println("!! ModeAlone Error : " + ex);
         }
     }
 
     public void startModeAlone() {
-        console.println("startModeAlone...");
+        System.out.println("--> startModeAlone...");
         isRunning = true;
         thread = new Thread(new AloneModeThread());
         thread.start();
     }
 
     public void stopModeAlone() {
-        console.println("stopModeAlone...");
+        System.out.println("--> stopModeAlone...");
         try {
             isRunning = false;
             gpioControler.stopAll();
             thread.join();
         } catch (InterruptedException e) {
-            console.println("stopModeAlone Error : " + e);
+            System.out.println("!! stopModeAlone Error : " + e);
         }
     }
 

@@ -1,25 +1,37 @@
 import com.pi4j.io.gpio.*;
-import com.pi4j.util.Console;
+import com.pi4j.io.gpio.event.GpioPinListenerDigital;
+
+import java.io.Console;
+import java.util.logging.Logger;
 
 public class GpioControler {
 
-    public final Motor leftMotor;
-    public final UserInterface userInterface;
+    private GpioController gpio;
 
-    private final Console console;
+    public final Motor leftMotor;
+
+    public final GpioPinDigitalInput gpioStartAndStop;
+    public final ModeAlone modeAlone
+            ;
+    private Boolean isStarted = false;
 
     /**
      * GpioControler
      */
     public GpioControler() {
-        console = new Console();
-        console.println("<-- Landroid Project -->", "Init GpioControler...");
+        System.out.println("<-- Landroid Project --> Init GpioControler...");
+        gpio = GpioFactory.getInstance();
 
         // Set Left Motor
         leftMotor = new Motor("Left Motor", RaspiPin.GPIO_23, RaspiPin.GPIO_02, RaspiPin.GPIO_03);
 
-        // Set User Interface
-        userInterface = new UserInterface(null);
+        // Set startAndStop
+        gpioStartAndStop = gpio.provisionDigitalInputPin(RaspiPin.GPIO_07, PinPullResistance.PULL_UP);
+        gpioStartAndStop.setShutdownOptions(true);
+        controlStartAndStop();
+
+        // Set Mode Alone
+        modeAlone = new ModeAlone(this);
     }
 
     /**
@@ -39,23 +51,42 @@ public class GpioControler {
     }
 
     /**
+     * controlMotorWithSteep
+     */
+    private void controlStartAndStop() {
+        gpioStartAndStop.addListener((GpioPinListenerDigital) event -> {
+            if (event.getState().isHigh()) {
+                System.out.println("Button Pressed !");
+                if (isStarted) {
+                    isStarted = false;
+                    UserInterface.speak(UserInterface.wavStop);
+                    //clientProcessor.modeAlone.stopModeAlone();
+                } else {
+                    isStarted = true;
+                    UserInterface.speak(UserInterface.wavStop);
+                    //clientProcessor.modeAlone.toString();
+                }
+            }
+        });
+    }
+
+    /**
      * testMotor
      */
     private void testMotor() {
         try {
-            console.title("<-- Landroid Project -->", "Test Motor PWM");
-
+            System.out.println("<-- Landroid Project --> Test Motor PWM");
             for (int i = 0; i < 100; i++) {
                 leftMotor.setSpeed(i);
-                console.println("PWM rate is: " + leftMotor.getSpeed());
+                System.out.println("--> PWM rate is: " + leftMotor.getSpeed());
                 Thread.sleep(100);
             }
-            console.println("PWM rate is: FULL SPEED !");
+            System.out.println("--> PWM rate is: FULL SPEED !");
             Thread.sleep(10000);
 
             for (int i = 100; i > 0; i--) {
                 leftMotor.setSpeed(i);
-                console.println("PWM rate is: " + leftMotor.getSpeed());
+                System.out.println("--> PWM rate is: " + leftMotor.getSpeed());
                 Thread.sleep(50);
             }
 /*
@@ -66,9 +97,9 @@ public class GpioControler {
             //console.println("Test with 100 steep backward");
             //leftMotor.controlMotorWithSteep(100, 20, 0);
 */
-            console.println(" ... Finish !");
+            System.out.println("--> Finish !");
         } catch (Exception ex) {
-            console.println(ex);
+            System.out.println(ex);
         }
         leftMotor.stopMotor();
     }

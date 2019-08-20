@@ -10,9 +10,7 @@ public class Motor {
     private GpioPinDigitalInput gpioSteeper;
 
     private int rotorSteep;
-
     private String motorName;
-
     private Console console;
 
     /**
@@ -21,7 +19,7 @@ public class Motor {
     public Motor(String motorName, Pin pinSpeed, Pin pinDirection, Pin pinSteeper) {
         console = new Console();
         this.motorName = motorName;
-        console.println("<-- Landroid Project -->", "Init Motor :" + this.motorName);
+        console.println("<-- Landroid Project --> Init Motor : " + this.motorName);
 
         // Create gpio controller for motor
         try {
@@ -85,7 +83,6 @@ public class Motor {
      * @param direction : true / flase
      */
     public void controlMotor(int speed, int direction) {
-        console.println("<--Pi4J--> Set Motor Speed / Direction");
         setDirection(direction);
         gpioSpeed.setPwm(speed);
     }

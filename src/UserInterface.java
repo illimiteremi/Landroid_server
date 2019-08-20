@@ -13,68 +13,16 @@ import com.pi4j.util.Console;
 
 public class UserInterface {
 
-    private GpioController gpio;
-    private GpioPinDigitalInput gpioStartAndStop;
-    private Boolean isStarted;
-
-    private static String wavStart = "/wav/start.wav";
-    private static String wavStop = "/wav/stop.wav";
-    private static String wavHalt = "/wav/goodbye.wav";
-
-    private Console console;
-
-    /**
-     * UserInterface Controler
-     */
-    public UserInterface(Pin pinStartAndStop) {
-        console = new Console();
-        console.println("<-- Landroid Project -->", "Init User Interface");
-
-        // Create gpio controller for motor
-        try {
-            gpio = GpioFactory.getInstance();
-
-            if (pinStartAndStop != null) {
-                // Button Start / Stop
-                gpioStartAndStop = gpio.provisionDigitalInputPin(pinStartAndStop, PinPullResistance.PULL_UP);
-                gpioStartAndStop.setShutdownOptions(true);
-
-                // Check Value;
-                isStarted = gpioStartAndStop.getState().getValue() == 1 ? true : false;
-
-                // Start Listener
-                controlStartAndStop();
-
-            }
-        } catch (Exception ex) {
-            console.println("Motor Error : " + ex);
-        }
-    }
-
-    /**
-     * controlMotorWithSteep
-     */
-    private void controlStartAndStop() {
-        gpioStartAndStop.addListener((GpioPinListenerDigital) event -> {
-            if (event.getState().isHigh()) {
-                console.println("Button Pressed !");
-                if (isStarted) {
-                    isStarted = false;
-                    //stopLandroid();
-                } else {
-                    isStarted = true;
-                    //startLandroid();
-                }
-            }
-        });
-    }
+    public static String wavStart = "/wav/start.wav";
+    public static String wavStop = "/wav/stop.wav";
+    public static String wavHalt = "/wav/goodbye.wav";
 
     /**
      * speak
      * 
      * @param wavFile
      */
-    public void speak(String wavFile) {
+    public static void speak(String wavFile) {
         AudioInputStream audioIn;
         try {
             audioIn = AudioSystem.getAudioInputStream(new File(wavFile));
@@ -84,7 +32,7 @@ public class UserInterface {
             clip.start();
             Thread.sleep(clip.getMicrosecondLength() / 1000);
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | InterruptedException e) {
-            console.println("Speak Error : " + e);
+            System.out.println("Speak Error : " + e);
         }
     }
 

@@ -2,27 +2,18 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
-import com.pi4j.util.Console;
 
 public class ClientProcessor implements Runnable {
 
-    private Socket sock;
-    private GpioControler gpioControler;
-    private final Console console;
-    private final ModeAlone modeAlone;
-    private final UserInterface userInterface;
+    private final Socket sock;
+    public final GpioControler gpioControler;
 
-    public ClientProcessor(Socket pSock, GpioControler gpioControler, ModeAlone modeAlone, UserInterface userInterface) {
-        console = new Console();
-        console.println("<-- Landroid Project -->", "Init ClientProcessor");
+    public ClientProcessor(Socket pSock, GpioControler gpioControler) {
         this.sock = pSock;
         this.gpioControler = gpioControler;
-        this.modeAlone     = modeAlone;
-        this.userInterface = userInterface;
-    }
+     }
 
     public void run() {
-
         while (!sock.isClosed()) {
 
             try {
@@ -34,9 +25,9 @@ public class ClientProcessor implements Runnable {
                 Integer speed = Integer.valueOf(in.readByte());
 
                 // On affiche quelques infos, pour le débuggage
-                String debug = "Commande reçue : " + cmd + " - " + Constants.COMMANDE.getValue(cmd).getMessage()
+                String debug = "--> Commande reçue : " + cmd + " - " + Constants.COMMANDE.getValue(cmd).getMessage()
                         + " - Vitesse = " + speed;
-                console.println(debug);
+                System.out.println(debug);
 
                 // On traite la demande du client en fonction de la commande envoyée
                 switch (Constants.COMMANDE.getValue(cmd)) {
@@ -77,17 +68,17 @@ public class ClientProcessor implements Runnable {
                     gpioControler.leftMotor.stopMotor();
                     break;
                 case START_ALONE_MODE:
-                    modeAlone.startModeAlone();
+                    gpioControler.modeAlone.startModeAlone();
                     break;
                 case STOP_ALONE_MODE:
-                    modeAlone.stopModeAlone();
+                    gpioControler.modeAlone.stopModeAlone();
                     break;
                 case HALT_SYSTEM:
-                    modeAlone.stopModeAlone();
+                    gpioControler.stopAll();
                     Runtime.getRuntime().exec("sudo shutdown -h now");
                     break;
                 case STOP_ALL:
-                    modeAlone.stopModeAlone();
+                    gpioControler.modeAlone.stopModeAlone();
                     gpioControler.stopAll();
                     break;
                 default:
@@ -98,9 +89,8 @@ public class ClientProcessor implements Runnable {
                 out.close();
                 in.close();
                 sock.close();
-
             } catch (SocketException e) {
-                console.println("SocketException : " + e.getMessage());
+                System.out.println("SocketException : " + e.getMessage());
                 break;
             } catch (Exception e) {
                 break;
