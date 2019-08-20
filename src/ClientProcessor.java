@@ -61,7 +61,7 @@ public class ClientProcessor implements Runnable {
                     gpioControler.leftMotor.controlMotor(speed, 0);
                     break;
                 case BRUSH_START:
-                    gpioControler.leftMotor.controlMotor(15, 0);
+                    gpioControler.leftMotor.controlMotor(50, 0);
                     break;
                 case BRUSH_STOP:
                     gpioControler.leftMotor.stopMotor();
