@@ -15,20 +15,57 @@ public class ModeAlone {
     private Pin rightTrigPin = RaspiPin.GPIO_06;
     private PiJavaUltrasonic rightCapteur;
 
-    class AloneModeThread implements Runnable {
-        @Override
+    private int leftDistance;
+    private int rightDistance;
+
+    Thread leftCapteurThread = new Thread() {
         public void run() {
             while (isRunning) {
                 try {
-                    System.out.println("--> Mode Alone In Progress...");
-                    int leftDistance = leftCapteur.getDistance();
-                    int rightDistance = rightCapteur.getDistance();
+                    leftDistance = leftCapteur.getDistance();
+                    Thread.sleep(500);
+                } catch (Exception e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println("!! leftCapteurThread Error : " + e);
+                }
+            }
+        }
+    };
+
+    Thread rightCapteurThread = new Thread() {
+        public void run() {
+            while (isRunning) {
+                try {
+                    rightDistance = rightCapteur.getDistance();
+                    Thread.sleep(500);
+                } catch (Exception e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println("!! rightCapteurThread Error : " + e);
+                }
+            }
+        }
+    };
+
+    class AloneModeThread implements Runnable {
+        @Override
+        public void run() {
+            // Start getDistance
+            leftCapteurThread.start();
+            rightCapteurThread.start();
+
+            while (isRunning) {
+                try {
+                    Thread.sleep(500);
                     System.out.println("--> Distance : L = " + leftDistance + " / R = " + rightDistance);
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();
                     System.out.println("!! AloneModeThread Error : " + e);
                 }
             }
+
+            // Stop getDistance
+            leftCapteurThread.join();
+            rightCapteurThread.join();
         }
     }
 
