@@ -46,17 +46,22 @@ public class ModeAlone {
         }
     };
 
+    /**
+     * Class AloneModeThread
+     */
     class AloneModeThread implements Runnable {
         @Override
         public void run() {
             // Start getDistance
             leftCapteurThread.start();
             rightCapteurThread.start();
+            float turnRobot = 0; // Center
 
             while (isRunning) {
                 try {
                     Thread.sleep(500);
                     System.out.println("--> Distance : L = " + leftDistance + " / R = " + rightDistance);
+                    turnRobot = checkDirection(leftDistance, rightDistance, 1000);
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();
                     System.out.println("!! AloneModeThread Error : " + e);
@@ -85,6 +90,9 @@ public class ModeAlone {
         }
     }
 
+    /**
+     * startModeAlone
+     */
     public void startModeAlone() {
         System.out.println("--> startModeAlone...");
         isRunning = true;
@@ -92,6 +100,9 @@ public class ModeAlone {
         thread.start();
     }
 
+    /**
+     * stopModeAlone
+     */
     public void stopModeAlone() {
         System.out.println("--> stopModeAlone...");
         try {
@@ -101,6 +112,35 @@ public class ModeAlone {
         } catch (InterruptedException e) {
             System.out.println("!! stopModeAlone Error : " + e);
         }
+    }
+
+    /**
+     * checkDirection
+     * 
+     * @param leftDist
+     * @param rightDist
+     * @return
+     */
+    private float checkDirection(int leftDist, int rightDist, int ctrlDistance) {
+        if (leftDist > ctrlDistance && rightDist > ctrlDistance) {
+            if (leftDist > rightDist) {
+                // Turn Left
+                System.out.println("--> Turn Left  : <-O");
+                return -1;
+            } else if (leftDist < rightDist) {
+                // Turn Right
+                System.out.println("--> Turn Right :  O->");
+                return 1;
+            } else {
+                // Center
+                System.out.println("--> Go Center  :  |||");
+                return 0;
+            }
+
+        }
+        // Objet trop loint
+        System.out.println("--> Go Center  :  |||");
+        return 0;
     }
 
 }
