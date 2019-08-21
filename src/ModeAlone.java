@@ -1,3 +1,5 @@
+import com.pi4j.io.gpio.Pin;
+import com.pi4j.io.gpio.RaspiPin;
 
 public class ModeAlone {
 
@@ -5,11 +7,15 @@ public class ModeAlone {
     private Thread thread;
     private boolean isRunning = false;
 
+    private Pin leftEchoPin = RaspiPin.GPIO_05;
+    private Pin leftTrigPin = RaspiPin.GPIO_04;
+    private PiJavaUltrasonic leftCapteur;
+
     /*
      * private final Pin leftEchoPin = RaspiPin.GPIO_02; private final Pin
      * leftTrigPin = RaspiPin.GPIO_02;
      * 
-     * private final Pin rightEchoPin = RaspiPin.GPIO_02; private final Pin
+     private final Pin rightEchoPin = RaspiPin.GPIO_02; private final Pin
      * rightTrigPin = RaspiPin.GPIO_02;
      * 
      * private final PiJavaUltrasonic leftCapteur; private final PiJavaUltrasonic
@@ -22,8 +28,9 @@ public class ModeAlone {
             while(isRunning) {
                 try {
                     System.out.println("--> Mode Alone In Progress...");
-                    gpioControler.leftMotor.controlMotor(50, 1);
-                    Thread.sleep(500);
+                    int leftDistance = leftCapteur.getDistance();
+                    System.out.println("--> leftDistance = " + leftDistance);
+                    Thread.sleep(2000);
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();
                     System.out.println("!! AloneModeThread Error : " + e);
@@ -41,8 +48,7 @@ public class ModeAlone {
         // Create gpio controller for motor
         try {
             this.gpioControler = gpioControler;
-            // leftCapteur = new PiJavaUltrasonic(leftEchoPin.getAddress(),
-            // leftTrigPin.getAddress());
+            leftCapteur = new PiJavaUltrasonic(leftEchoPin.getAddress(), leftTrigPin.getAddress(),1000,1000);
             // rightCapteur = new PiJavaUltrasonic(rightEchoPin.getAddress(),
             // rightTrigPin.getAddress());
         } catch (Exception ex) {
