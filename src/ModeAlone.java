@@ -62,6 +62,7 @@ public class ModeAlone {
                     Thread.sleep(500);
                     System.out.println("--> Distance : L = " + leftDistance + " / R = " + rightDistance);
                     turnRobot = checkDirection(leftDistance, rightDistance, 1000);
+
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();
                     System.out.println("!! AloneModeThread Error : " + e);
@@ -143,5 +144,4 @@ public class ModeAlone {
         System.out.println("--> Go Center  :  |||");
         return 0;
     }
-
 }
