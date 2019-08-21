@@ -4,74 +4,87 @@ import com.pi4j.io.gpio.RaspiPin;
 public class ModeAlone {
 
     private GpioControler gpioControler;
-    private Thread thread;
-    private boolean isRunning = false;
+    private Thread        mainThread;
+    private Thread        leftThread;
+    private Thread        rightThread;
+    private boolean       isRunning = false;
 
+    private PiJavaUltrasonic leftCapteur;
     private Pin leftEchoPin = RaspiPin.GPIO_05;
     private Pin leftTrigPin = RaspiPin.GPIO_04;
-    private PiJavaUltrasonic leftCapteur;
 
-    private Pin rightEchoPin = RaspiPin.GPIO_07;
-    private Pin rightTrigPin = RaspiPin.GPIO_06;
+
     private PiJavaUltrasonic rightCapteur;
+    private Pin rightEchoPin = RaspiPin.GPIO_10;
+    private Pin rightTrigPin = RaspiPin.GPIO_06;
 
-    private int leftDistance;
-    private int rightDistance;
 
-    Thread leftCapteurThread = new Thread() {
+    public int leftDistance;
+    public int rightDistance;
+
+    private class CapteurThread implements Runnable {
+
+        private PiJavaUltrasonic piJavaUltrasonic;
+
+        public CapteurThread(PiJavaUltrasonic piJavaUltrasonic) {
+            this.piJavaUltrasonic = piJavaUltrasonic;
+        }
+
+        @Override
         public void run() {
             while (isRunning) {
                 try {
-                    leftDistance = leftCapteur.getDistance();
-                    Thread.sleep(500);
+                    int distance = piJavaUltrasonic.getDistance();
+                    if (piJavaUltrasonic.name.contains("LEFT")){
+                        leftDistance = distance;
+                    }
+                    if (piJavaUltrasonic.name.contains("RIGHT")){
+                        rightDistance = distance;
+                    }
+                    // Wait 1 sec
+                    Thread.sleep(1000);
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();
-                    System.out.println("!! leftCapteurThread Error : " + e);
+                    System.out.println("--> leftCapteurThread Error : " + e);
                 }
             }
         }
-    };
-
-    Thread rightCapteurThread = new Thread() {
-        public void run() {
-            while (isRunning) {
-                try {
-                    rightDistance = rightCapteur.getDistance();
-                    Thread.sleep(500);
-                } catch (Exception e) {
-                    Thread.currentThread().interrupt();
-                    System.out.println("!! rightCapteurThread Error : " + e);
-                }
-            }
-        }
-    };
+    }
 
     /**
      * Class AloneModeThread
      */
-    class AloneModeThread implements Runnable {
+    private class AloneModeThread implements Runnable {
+
+        public AloneModeThread() {
+            // Start getDistance
+            leftThread = new Thread(new CapteurThread(leftCapteur));
+            rightThread = new Thread(new CapteurThread(rightCapteur));
+            leftThread.start();
+            rightThread.start();
+        }
+
         @Override
         public void run() {
-            // Start getDistance
-            leftCapteurThread.start();
-            rightCapteurThread.start();
-            float turnRobot = 0; // Center
-
             while (isRunning) {
                 try {
                     Thread.sleep(500);
-                    System.out.println("--> Distance : L = " + leftDistance + " / R = " + rightDistance);
-                    turnRobot = checkDirection(leftDistance, rightDistance, 1000);
-
+                    System.out.println("--> Distance : L = " + leftDistance + " cm / R = " + rightDistance + " cm");
+                    float turnRobot = checkDirection(leftDistance, rightDistance);
+                    if (leftDistance >= 100) {
+                        gpioControler.leftMotor.controlMotor(100,1);
+                    } else if (leftDistance <= 10) {
+                        gpioControler.leftMotor.controlMotor(0, 1);
+                    } else if (leftDistance <= 20) {
+                        gpioControler.leftMotor.controlMotor(20, 1);
+                    } else {
+                        gpioControler.leftMotor.controlMotor(leftDistance,1);
+                    }
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();
                     System.out.println("!! AloneModeThread Error : " + e);
                 }
             }
-
-            // Stop getDistance
-            leftCapteurThread.join();
-            rightCapteurThread.join();
         }
     }
 
@@ -84,10 +97,10 @@ public class ModeAlone {
         // Create gpio controller for motor
         try {
             this.gpioControler = gpioControler;
-            leftCapteur = new PiJavaUltrasonic(leftEchoPin.getAddress(), leftTrigPin.getAddress(), 1000, 23529411);
-            rightCapteur = new PiJavaUltrasonic(rightEchoPin.getAddress(), rightTrigPin.getAddress(), 1000, 23529411);
+            leftCapteur = new PiJavaUltrasonic(leftEchoPin.getAddress(), leftTrigPin.getAddress(), 1000, 23529411, "LEFT");
+            rightCapteur = new PiJavaUltrasonic(rightEchoPin.getAddress(), rightTrigPin.getAddress(), 1000, 23529411, "RIGHT");
         } catch (Exception ex) {
-            System.out.println("!! ModeAlone Error : " + ex);
+            System.out.println("--> ModeAlone Error : " + ex);
         }
     }
 
@@ -97,8 +110,8 @@ public class ModeAlone {
     public void startModeAlone() {
         System.out.println("--> startModeAlone...");
         isRunning = true;
-        thread = new Thread(new AloneModeThread());
-        thread.start();
+        mainThread = new Thread(new AloneModeThread());
+        mainThread.start();
     }
 
     /**
@@ -108,10 +121,12 @@ public class ModeAlone {
         System.out.println("--> stopModeAlone...");
         try {
             isRunning = false;
+            mainThread.join();
+            leftThread.join();
+            rightThread.join();
             gpioControler.stopAll();
-            thread.join();
         } catch (InterruptedException e) {
-            System.out.println("!! stopModeAlone Error : " + e);
+            System.out.println("--> stopModeAlone Error : " + e);
         }
     }
 
@@ -120,11 +135,9 @@ public class ModeAlone {
      * 
      * @param leftDist
      * @param rightDist
-     * @param ctrlDistance
      * @return
      */
-    private float checkDirection(int leftDist, int rightDist, int ctrlDistance) {
-        if (leftDist < ctrlDistance && rightDist < ctrlDistance) {
+    private float checkDirection(int leftDist, int rightDist) {
             if (leftDist > rightDist) {
                 // Turn Left
                 System.out.println("--> Turn Left  : <-O");
@@ -138,10 +151,5 @@ public class ModeAlone {
                 System.out.println("--> Go Center  :  |||");
                 return 0;
             }
-
-        }
-        // Objet trop loint
-        System.out.println("--> Go Center  :  |||");
-        return 0;
     }
 }
