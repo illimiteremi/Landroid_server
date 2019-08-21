@@ -11,26 +11,19 @@ public class ModeAlone {
     private Pin leftTrigPin = RaspiPin.GPIO_04;
     private PiJavaUltrasonic leftCapteur;
 
-    /*
-     * private final Pin leftEchoPin = RaspiPin.GPIO_02; private final Pin
-     * leftTrigPin = RaspiPin.GPIO_02;
-     * 
-     private final Pin rightEchoPin = RaspiPin.GPIO_02; private final Pin
-     * rightTrigPin = RaspiPin.GPIO_02;
-     * 
-     * private final PiJavaUltrasonic leftCapteur; private final PiJavaUltrasonic
-     * rightCapteur;
-     */
+    private Pin rightEchoPin = RaspiPin.GPIO_07;
+    private Pin rightTrigPin = RaspiPin.GPIO_06;
+    private PiJavaUltrasonic rightCapteur;
 
     class AloneModeThread implements Runnable {
         @Override
         public void run() {
-            while(isRunning) {
+            while (isRunning) {
                 try {
                     System.out.println("--> Mode Alone In Progress...");
                     int leftDistance = leftCapteur.getDistance();
-                    System.out.println("--> leftDistance = " + leftDistance);
-                    Thread.sleep(2000);
+                    int rightDistance = rightCapteur.getDistance();
+                    System.out.println("--> Distance : L = " + leftDistance + " / R = " + rightDistance);
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();
                     System.out.println("!! AloneModeThread Error : " + e);
@@ -48,9 +41,8 @@ public class ModeAlone {
         // Create gpio controller for motor
         try {
             this.gpioControler = gpioControler;
-            leftCapteur = new PiJavaUltrasonic(leftEchoPin.getAddress(), leftTrigPin.getAddress(),1000,1000);
-            // rightCapteur = new PiJavaUltrasonic(rightEchoPin.getAddress(),
-            // rightTrigPin.getAddress());
+            leftCapteur = new PiJavaUltrasonic(leftEchoPin.getAddress(), leftTrigPin.getAddress(), 1000, 23529411);
+            rightCapteur = new PiJavaUltrasonic(rightEchoPin.getAddress(), rightTrigPin.getAddress(), 1000, 23529411);
         } catch (Exception ex) {
             System.out.println("!! ModeAlone Error : " + ex);
         }
