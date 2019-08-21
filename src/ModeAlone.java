@@ -119,10 +119,11 @@ public class ModeAlone {
      * 
      * @param leftDist
      * @param rightDist
+     * @param ctrlDistance
      * @return
      */
     private float checkDirection(int leftDist, int rightDist, int ctrlDistance) {
-        if (leftDist > ctrlDistance && rightDist > ctrlDistance) {
+        if (leftDist < ctrlDistance && rightDist < ctrlDistance) {
             if (leftDist > rightDist) {
                 // Turn Left
                 System.out.println("--> Turn Left  : <-O");
