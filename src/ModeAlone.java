@@ -25,17 +25,18 @@ public class ModeAlone {
     private class CapteurThread implements Runnable {
 
         private Semaphore semaphore;
+        private Object locker;
         private PiJavaUltrasonic piJavaUltrasonic;
 
-        public CapteurThread(PiJavaUltrasonic piJavaUltrasonic, Semaphore semaphore) {
+        public CapteurThread(PiJavaUltrasonic piJavaUltrasonic, Semaphore semaphore,Object locker) {
             this.piJavaUltrasonic = piJavaUltrasonic;
             this.semaphore = semaphore;
+            this.locker = locker;
         }
 
         @Override
         public void run() {
             while (isRunning) {
-                semaphore.release();
                 try {
                     int distance = piJavaUltrasonic.getDistance();
                     if (piJavaUltrasonic.name.contains("LEFT")) {
@@ -48,7 +49,8 @@ public class ModeAlone {
                     Thread.currentThread().interrupt();
                     System.out.println("--> leftCapteurThread Error : " + e);
                 }
-                semaphore.acquire();
+                semaphore.release();
+                locker.wait();
             }
         }
     }
@@ -57,15 +59,17 @@ public class ModeAlone {
      * Class AloneModeThread
      */
     private class AloneModeThread implements Runnable {
+        final Semaphore semaphore;
+        private Object locker;
 
         public AloneModeThread() {
 
             // Creat Semaphore
-            Semaphore semaphore = new Semaphore(2, true);
-
+            locker = new Object();
+            semaphore = new Semaphore(2, true);
             // Start getDistance
-            leftThread = new Thread(new CapteurThread(leftCapteur, semaphore));
-            rightThread = new Thread(new CapteurThread(rightCapteur, semaphore));
+            leftThread = new Thread(new CapteurThread(leftCapteur, semaphore, locker));
+            rightThread = new Thread(new CapteurThread(rightCapteur, semaphore, locker));
             leftThread.start();
             rightThread.start();
         }
@@ -87,6 +91,7 @@ public class ModeAlone {
                     } else {
                         gpioControler.leftMotor.controlMotor(leftDistance, 1);
                     }
+                    locker.notifyAll();
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();
                     System.out.println("--> AloneModeThread Error : " + e);
