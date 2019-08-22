@@ -29,6 +29,7 @@ public class ModeAlone {
         private PiJavaUltrasonic piJavaUltrasonic;
 
         public CapteurThread(PiJavaUltrasonic piJavaUltrasonic, Semaphore semaphore, Object locker) {
+
             this.piJavaUltrasonic = piJavaUltrasonic;
             this.semaphore = semaphore;
             this.locker = locker;
@@ -64,7 +65,7 @@ public class ModeAlone {
 
         public AloneModeThread() {
 
-            // Creat Semaphore
+            // Create Semaphore
             locker = new Object();
             semaphore = new Semaphore(2, true);
             // Start getDistance
