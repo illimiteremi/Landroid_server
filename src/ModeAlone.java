@@ -24,15 +24,11 @@ public class ModeAlone {
 
     private class CapteurThread implements Runnable {
 
-        private Semaphore semaphore;
-        private Object locker;
         private PiJavaUltrasonic piJavaUltrasonic;
 
-        public CapteurThread(PiJavaUltrasonic piJavaUltrasonic, Semaphore semaphore, Object locker) {
+        public CapteurThread(PiJavaUltrasonic piJavaUltrasonic) {
 
             this.piJavaUltrasonic = piJavaUltrasonic;
-            this.semaphore = semaphore;
-            this.locker = locker;
         }
 
         @Override
@@ -50,8 +46,6 @@ public class ModeAlone {
                     Thread.currentThread().interrupt();
                     System.out.println("--> leftCapteurThread Error : " + e);
                 }
-                semaphore.release();
-                locker.wait();
             }
         }
     }
@@ -66,11 +60,10 @@ public class ModeAlone {
         public AloneModeThread() {
 
             // Create Semaphore
-            locker = new Object();
             semaphore = new Semaphore(2, true);
             // Start getDistance
-            leftThread = new Thread(new CapteurThread(leftCapteur, semaphore, locker));
-            rightThread = new Thread(new CapteurThread(rightCapteur, semaphore, locker));
+            leftThread = new Thread(new CapteurThread(leftCapteur));
+            rightThread = new Thread(new CapteurThread(rightCapteur));
             leftThread.start();
             rightThread.start();
         }
@@ -78,25 +71,23 @@ public class ModeAlone {
         @Override
         public void run() {
             while (isRunning) {
-                try {
-                    Thread.sleep(500);
-                    // System.out.println("--> Distance : L = " + leftDistance + " cm / R = " +
-                    // rightDistance + " cm");
-                    float turnRobot = checkDirection(leftDistance, rightDistance);
-                    if (leftDistance >= 100) {
-                        gpioControler.leftMotor.controlMotor(100, 1);
-                    } else if (leftDistance <= 10) {
-                        gpioControler.leftMotor.controlMotor(0, 1);
-                    } else if (leftDistance <= 20) {
-                        gpioControler.leftMotor.controlMotor(20, 1);
-                    } else {
-                        gpioControler.leftMotor.controlMotor(leftDistance, 1);
+                    try {
+                        Thread.sleep(500);
+                        System.out.println("--> Distance : L = " + leftDistance + " cm / R = " + rightDistance + " cm");
+                        float turnRobot = checkDirection(leftDistance, rightDistance);
+                        if (leftDistance >= 100) {
+                            gpioControler.leftMotor.controlMotor(100, 1);
+                        } else if (leftDistance <= 10) {
+                            gpioControler.leftMotor.controlMotor(0, 1);
+                        } else if (leftDistance <= 20) {
+                            gpioControler.leftMotor.controlMotor(20, 1);
+                        } else {
+                            gpioControler.leftMotor.controlMotor(leftDistance, 1);
+                        }
+                    } catch (Exception e) {
+                        Thread.currentThread().interrupt();
+                        System.out.println("--> AloneModeThread Error : " + e);
                     }
-                    locker.notifyAll();
-                } catch (Exception e) {
-                    Thread.currentThread().interrupt();
-                    System.out.println("--> AloneModeThread Error : " + e);
-                }
             }
         }
     }
