@@ -42,7 +42,7 @@ public class PiJavaUltrasonic {
         pin_echo = gpio.provisionDigitalInputPin(RaspiPin.getPinByAddress(PIN_ECHO), PinPullResistance.PULL_DOWN); // pin,tag,initial-state
     }
 
-    public int getDistance() throws Exception { // in milimeters
+    public synchronized int getDistance() throws Exception { // in milimeters
         int distance;
         long start_time, end_time, rejection_start = 0, rejection_time = 0;
         // Start ranging- trig should be in high state for 10us to generate ultrasonic

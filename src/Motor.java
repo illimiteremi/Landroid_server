@@ -82,7 +82,7 @@ public class Motor {
      * @param speed     : 1 to 100
      * @param direction : true / flase
      */
-    public void controlMotor(int speed, int direction) {
+    public synchronized void controlMotor(int speed, int direction) {
         setDirection(direction);
         gpioSpeed.setPwm(speed);
     }
@@ -92,7 +92,7 @@ public class Motor {
      * 
      * @param speed
      */
-    public void setSpeed(int speed) {
+    public synchronized void setSpeed(int speed) {
         gpioSpeed.setPwm(speed);
     }
 
@@ -101,7 +101,7 @@ public class Motor {
      * 
      * @param direction
      */
-    public void setDirection(int direction) {
+    public synchronized void setDirection(int direction) {
         if (direction == 1) {
             gpioDirection.high();
         } else {
@@ -114,7 +114,7 @@ public class Motor {
      * 
      * @return
      */
-    public int getSpeed() {
+    public synchronized int getSpeed() {
         return gpioSpeed.getPwm();
     }
 
@@ -123,7 +123,7 @@ public class Motor {
      * 
      * @return
      */
-    public int getDirection() {
+    public synchronized int getDirection() {
         return gpioDirection.getState().getValue();
     }
 
