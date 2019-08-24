@@ -42,6 +42,7 @@ public class ModeAlone {
                     if (piJavaUltrasonic.name.contains("RIGHT")) {
                         rightDistance = distance;
                     }
+                    Thread.sleep(50);
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();
                     System.out.println("--> leftCapteurThread Error : " + e);
