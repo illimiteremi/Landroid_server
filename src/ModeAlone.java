@@ -22,6 +22,9 @@ public class ModeAlone {
     public int leftDistance;
     public int rightDistance;
 
+    /**
+     * CapteurThread
+     */
     private class CapteurThread implements Runnable {
 
         private PiJavaUltrasonic piJavaUltrasonic;
@@ -55,13 +58,7 @@ public class ModeAlone {
      * Class AloneModeThread
      */
     private class AloneModeThread implements Runnable {
-        final Semaphore semaphore;
-        private Object locker;
-
         public AloneModeThread() {
-
-            // Create Semaphore
-            semaphore = new Semaphore(2, true);
             // Start getDistance
             leftThread = new Thread(new CapteurThread(leftCapteur));
             rightThread = new Thread(new CapteurThread(rightCapteur));
@@ -71,24 +68,42 @@ public class ModeAlone {
 
         @Override
         public void run() {
-            while (isRunning) {
-                    try {
-                        Thread.sleep(500);
-                        System.out.println("--> Distance : L = " + leftDistance + " cm / R = " + rightDistance + " cm");
-                        float turnRobot = checkDirection(leftDistance, rightDistance);
-                        if (leftDistance >= 100) {
-                            gpioControler.leftMotor.controlMotor(100, 1);
-                        } else if (leftDistance <= 10) {
-                            gpioControler.leftMotor.controlMotor(0, 1);
-                        } else if (leftDistance <= 20) {
-                            gpioControler.leftMotor.controlMotor(20, 1);
-                        } else {
-                            gpioControler.leftMotor.controlMotor(leftDistance, 1);
-                        }
-                    } catch (Exception e) {
-                        Thread.currentThread().interrupt();
-                        System.out.println("--> AloneModeThread Error : " + e);
+            // Init before to start
+            int leftMotorSpeed = checkMotorSpeed(leftDistance, gpioControler.leftMotor);
+              while (isRunning) {
+                try {
+                    Thread.sleep(500);
+                    // Check type of obstacle
+                    Constants.OBSTACLE_TYPE typeObstacle = checkObstacle(leftDistance, rightDistance);
+                    switch (typeObstacle) {
+                        case WALL:
+                            if (leftMotorSpeed == 0) {
+                                // reverse leftMotor
+                                gpioControler.leftMotor.controlMotor(25,1);
+                            } else {
+                                leftMotorSpeed = checkMotorSpeed(leftDistance, gpioControler.leftMotor);
+                            }
+                            break;
+                        case LEFT:
+                            break;
+                        case RIGHT:
+                            leftMotorSpeed = checkMotorSpeed(25, gpioControler.leftMotor);
+                            break;
+                        case NONE:
+                            gpioControler.leftMotor.setDirection(0);
+                            leftMotorSpeed = checkMotorSpeed(100, gpioControler.leftMotor);
+
+                            break;
+                        default:
+
                     }
+                    System.out.print("\033[H\033[2J");
+                    System.out.println("--> L = " + leftDistance + " cm / R = " + rightDistance + " cm | "
+                            + typeObstacle.libelle + " | " + leftMotorSpeed + "%");
+                } catch (Exception e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println("--> AloneModeThread Error : " + e);
+                }
             }
         }
     }
@@ -138,25 +153,53 @@ public class ModeAlone {
     }
 
     /**
-     * checkDirection
-     * 
+     * checkMotorSpeed
+     *
+     * @param motor
+     */
+    private int checkMotorSpeed(Integer distance, Motor motor) {
+        if (distance >= 0 && distance <= 10) {
+            motor.setSpeed(0);
+            return 0;
+        } else if (distance >= 10 && distance <= 25) {
+            motor.setSpeed(20);
+            return 25;
+        } else if (distance >= 25 && distance <= 50) {
+            motor.setSpeed(50);
+            return 50;
+        } else if (distance >= 100) {
+            motor.setSpeed(100);
+            return 100;
+        } else {
+            motor.setSpeed(distance);
+            return distance;
+        }
+    }
+
+    /**
+     * checkObstacle
+     *
      * @param leftDist
      * @param rightDist
      * @return
      */
-    private float checkDirection(int leftDist, int rightDist) {
-        if (leftDist > rightDist) {
-            // Turn Left
-            System.out.println("--> Turn Left  : <-O");
-            return -1;
-        } else if (leftDist < rightDist) {
-            // Turn Right
-            System.out.println("--> Turn Right :  O->");
-            return 1;
+    private Constants.OBSTACLE_TYPE checkObstacle(int leftDist, int rightDist) {
+        int diff = Math.abs(leftDist - rightDist);
+        // si difference de 50cm et distance < 1 metre
+        if (diff >= 50 && (leftDist <= 100 || rightDist <=100)) {
+            // obstalce detecté
+            if (leftDist > rightDist) {
+                return Constants.OBSTACLE_TYPE.RIGHT;
+            } else {
+                return Constants.OBSTACLE_TYPE.LEFT;
+            }
         } else {
-            // Center
-            System.out.println("--> Go Center  :  |||");
-            return 0;
+            if (leftDist <= 50 || rightDist <=50) {
+                return Constants.OBSTACLE_TYPE.WALL;
+            }
         }
+        return Constants.OBSTACLE_TYPE.NONE;
     }
+
+
 }

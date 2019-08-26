@@ -15,7 +15,7 @@ public class Constants {
 
         /**
          * COMMANDE constructor
-         * 
+         *
          * @param _code
          * @param _message
          */
@@ -26,7 +26,7 @@ public class Constants {
 
         /**
          * getCode
-         * 
+         *
          * @return
          */
         public byte getCode() {
@@ -35,7 +35,7 @@ public class Constants {
 
         /**
          * getLibelle
-         * 
+         *
          * @return
          */
         public String getMessage() {
@@ -44,7 +44,7 @@ public class Constants {
 
         /**
          * getValue
-         * 
+         *
          * @param code
          * @return
          */
@@ -67,7 +67,7 @@ public class Constants {
 
         /**
          * RESPONSE constructor
-         * 
+         *
          * @param _code
          * @param _message
          */
@@ -78,7 +78,7 @@ public class Constants {
 
         /**
          * getCode
-         * 
+         *
          * @return
          */
         public byte getCode() {
@@ -87,7 +87,7 @@ public class Constants {
 
         /**
          * getLibelle
-         * 
+         *
          * @return
          */
         public String getMessage() {
@@ -96,7 +96,7 @@ public class Constants {
 
         /**
          * getValue
-         * 
+         *
          * @param code
          * @return
          */
@@ -108,6 +108,30 @@ public class Constants {
             }
             return COMMANDE_UNKNOW; // not found
         }
+    }
+
+    public enum OBSTACLE_TYPE {
+
+        NONE (0, "Aucun obstacle    -----|-----"),
+        LEFT (1, "Obstacle à gauche --O--|-----"),
+        RIGHT(2, "Obstacle à droite -----|--O--"),
+        WALL (3, "Mur droit devant  =====|=====");
+
+        public int    code;
+        public String libelle;
+
+        /**
+         * OBSTACLE_TYPE constructor
+         *
+         * @param _code
+         * @param _libelle
+         */
+        OBSTACLE_TYPE(int _code, String _libelle) {
+            code = (byte) _code;
+            libelle = _libelle;
+        }
+
+
     }
 
 }
