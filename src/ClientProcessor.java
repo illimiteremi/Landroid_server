@@ -39,33 +39,45 @@ public class ClientProcessor implements Runnable {
                     break;
                 case DIRECTION_CENTER:
                     gpioControler.leftMotor.stopMotor();
+                    gpioControler.rightMotor.stopMotor();
                     break;
                 case DIRECTION_LEFT:
                     gpioControler.leftMotor.setSpeed(speed);
+                    gpioControler.rightMotor.setSpeed(0);
                     break;
                 case DIRECTION_LEFT_UP:
                     gpioControler.leftMotor.controlMotor(speed, 1);
+                    gpioControler.rightMotor.setSpeed(0);
                     break;
                 case DIRECTION_UP:
                     gpioControler.leftMotor.controlMotor(speed, 1);
+                    gpioControler.rightMotor.controlMotor(speed, 1);
                     break;
                 case DIRECTION_UP_RIGHT:
+                    gpioControler.rightMotor.controlMotor(speed, 1);
+                    gpioControler.leftMotor.setSpeed(0);
                     break;
                 case DIRECTION_RIGHT:
+                    gpioControler.leftMotor.setSpeed(0);
+                    gpioControler.rightMotor.setSpeed(speed);
                     break;
                 case DIRECTION_RIGHT_DOWN:
+                    gpioControler.leftMotor.setSpeed(0);
+                    gpioControler.rightMotor.controlMotor(speed,0);
                     break;
                 case DIRECTION_DOWN:
                     gpioControler.leftMotor.controlMotor(speed, 0);
+                    gpioControler.rightMotor.controlMotor(speed,0);
                     break;
                 case DIRECTION_DOWN_LEFT:
                     gpioControler.leftMotor.controlMotor(speed, 0);
+                    gpioControler.rightMotor.setSpeed(0);
                     break;
                 case BRUSH_START:
-                    gpioControler.leftMotor.controlMotor(50, 0);
+                    //gpioControler.leftMotor.controlMotor(50, 0);
                     break;
                 case BRUSH_STOP:
-                    gpioControler.leftMotor.stopMotor();
+                    //gpioControler.leftMotor.stopMotor();
                     break;
                 case START_ALONE_MODE:
                     gpioControler.modeAlone.startModeAlone();

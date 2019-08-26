@@ -8,7 +8,7 @@ public class GpioControler {
 
     private GpioController gpio;
 
-    public final Motor leftMotor;
+    public final Motor leftMotor, rightMotor;
 
     public final GpioPinDigitalInput gpioStartAndStop;
     public final ModeAlone modeAlone
@@ -24,6 +24,7 @@ public class GpioControler {
 
         // Set Left Motor
         leftMotor = new Motor("Left Motor", RaspiPin.GPIO_23, RaspiPin.GPIO_02, RaspiPin.GPIO_03);
+        rightMotor = new Motor("Right Motor", RaspiPin.GPIO_12, RaspiPin.GPIO_13, RaspiPin.GPIO_14);
 
         // Set startAndStop
         gpioStartAndStop = gpio.provisionDigitalInputPin(RaspiPin.GPIO_07, PinPullResistance.PULL_UP);
@@ -48,6 +49,7 @@ public class GpioControler {
      */
     public void stopAll() {
         leftMotor.stopMotor();
+        rightMotor.stopMotor();
     }
 
     /**

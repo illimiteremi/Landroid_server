@@ -70,36 +70,48 @@ public class ModeAlone {
         public void run() {
             // Init before to start
             int leftMotorSpeed = checkMotorSpeed(leftDistance, gpioControler.leftMotor);
-              while (isRunning) {
+            int rightMotorSpeed = checkMotorSpeed(leftDistance, gpioControler.rightMotor);
+            while (isRunning) {
                 try {
                     Thread.sleep(500);
                     // Check type of obstacle
                     Constants.OBSTACLE_TYPE typeObstacle = checkObstacle(leftDistance, rightDistance);
                     switch (typeObstacle) {
                         case WALL:
-                            if (leftMotorSpeed == 0) {
-                                // reverse leftMotor
-                                gpioControler.leftMotor.controlMotor(25,1);
+                            if (leftMotorSpeed == 0 && rightMotorSpeed == 0) {
+                                // REVERSE LEFT DIRECTION
+                                gpioControler.leftMotor.controlMotor(25, 1);
+                                gpioControler.rightMotor.controlMotor(25, 0);
                             } else {
+                                // DIRECTION UP xx%
                                 leftMotorSpeed = checkMotorSpeed(leftDistance, gpioControler.leftMotor);
+                                rightMotorSpeed = checkMotorSpeed(leftDistance, gpioControler.rightMotor);
                             }
                             break;
                         case LEFT:
+                            // DIRECTION LEFT UP 25%
+                            if (rightMotorSpeed != 0) {
+                                rightMotorSpeed = checkMotorSpeed(25, gpioControler.rightMotor);
+                            }
                             break;
                         case RIGHT:
-                            leftMotorSpeed = checkMotorSpeed(25, gpioControler.leftMotor);
+                            // DIRECTION RIGHT UP 25%
+                            if (leftMotorSpeed != 0) {
+                                leftMotorSpeed = checkMotorSpeed(25, gpioControler.leftMotor);
+                            }
                             break;
                         case NONE:
+                            // DIRECTION UP 100%
                             gpioControler.leftMotor.setDirection(0);
                             leftMotorSpeed = checkMotorSpeed(100, gpioControler.leftMotor);
-
+                            rightMotorSpeed = checkMotorSpeed(100, gpioControler.rightMotor);
                             break;
                         default:
 
                     }
                     System.out.print("\033[H\033[2J");
                     System.out.println("--> L = " + leftDistance + " cm / R = " + rightDistance + " cm | "
-                            + typeObstacle.libelle + " | " + leftMotorSpeed + "%");
+                            + typeObstacle.libelle + " | " + leftMotorSpeed + "% / " + leftMotorSpeed + "%");
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();
                     System.out.println("--> AloneModeThread Error : " + e);
@@ -186,7 +198,7 @@ public class ModeAlone {
     private Constants.OBSTACLE_TYPE checkObstacle(int leftDist, int rightDist) {
         int diff = Math.abs(leftDist - rightDist);
         // si difference de 50cm et distance < 1 metre
-        if (diff >= 50 && (leftDist <= 100 || rightDist <=100)) {
+        if (diff >= 50 && (leftDist <= 100 || rightDist <= 100)) {
             // obstalce detecté
             if (leftDist > rightDist) {
                 return Constants.OBSTACLE_TYPE.RIGHT;
@@ -194,7 +206,7 @@ public class ModeAlone {
                 return Constants.OBSTACLE_TYPE.LEFT;
             }
         } else {
-            if (leftDist <= 50 || rightDist <=50) {
+            if (leftDist <= 50 || rightDist <= 50) {
                 return Constants.OBSTACLE_TYPE.WALL;
             }
         }
